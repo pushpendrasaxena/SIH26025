@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coal Mine Safety Dashboard - SIH26025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- EVACUATION BANNER (shown only on CRITICAL) -->
+  <div id="evacBanner" class="evac-banner" style="display: none;">
+    <div class="evac-content">
+      <div class="evac-siren">🔴</div>
+      <div class="evac-text">
+        <div class="evac-title">CRITICAL ALERT - EVACUATION REQUIRED</div>
+        <div class="evac-message" id="evacMessage">One or more nodes reporting critical conditions</div>
+      </div>
+      <div class="evac-siren">🔴</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <h1>⚒️ COAL MINE SAFETY NETWORK</h1>
+        <p class="subtitle">Real-time Subsidence & Risk Monitoring - SIH26025</p>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <span class="dot" id="connectionDot"></span>
+          <span id="connectionStatus">Connecting...</span>
+        </div>
+        <div class="clock" id="clock">--:--:--</div>
+      </div>
+    </header>
+
+    <!-- SUMMARY STATS -->
+    <div class="summary-stats">
+      <div class="stat-card stat-total">
+        <div class="stat-icon">📍</div>
+        <div class="stat-info">
+          <div class="stat-value" id="totalNodes">0</div>
+          <div class="stat-label">Total Nodes</div>
+        </div>
+      </div>
+      <div class="stat-card stat-normal">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-value" id="normalCount">0</div>
+          <div class="stat-label">Normal</div>
+        </div>
+      </div>
+      <div class="stat-card stat-warning">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-info">
+          <div class="stat-value" id="warningCount">0</div>
+          <div class="stat-label">Warning</div>
+        </div>
+      </div>
+      <div class="stat-card stat-hazard">
+        <div class="stat-icon">⛔</div>
+        <div class="stat-info">
+          <div class="stat-value" id="hazardCount">0</div>
+          <div class="stat-label">Hazard</div>
+        </div>
+      </div>
+      <div class="stat-card stat-critical">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-info">
+          <div class="stat-value" id="criticalCount">0</div>
+          <div class="stat-label">Critical</div>
+        </div>
+      </div>
+      <div class="stat-card stat-offline">
+        <div class="stat-icon">❌</div>
+        <div class="stat-info">
+          <div class="stat-value" id="offlineCount">0</div>
+          <div class="stat-label">Offline</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NODES GRID -->
+    <div class="nodes-section">
+      <h2 class="section-title">Sensor Nodes Status & Data</h2>
+      <div class="nodes-grid" id="nodesGrid">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- ALERTS & WARNINGS SECTION -->
+    <div class="alerts-section" id="alertsSection" style="display: none;">
+      <h2 class="section-title">🚨 Active Alerts & Warnings</h2>
+      <div class="alerts-list" id="alertsList">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- EVENT LOG -->
+    <div class="log-section">
+      <h2 class="section-title">Event Log</h2>
+      <div class="log-list" id="logList">
+        <div class="log-entry">Waiting for data from backend...</div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-info">
+        <p>Last updated: <span id="lastUpdate">--</span></p>
+        <p>Backend API: <span id="apiStatus">Disconnected</span></p>
+      </div>
+      <div class="footer-controls">
+        <button id="refreshBtn" class="btn btn-primary">🔄 Refresh Now</button>
+        <button id="autoRefreshBtn" class="btn btn-secondary" data-enabled="true">⏱️ Auto-Refresh: ON</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

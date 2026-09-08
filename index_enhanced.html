@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mine Safety Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Evacuation Banner -->
+<div id="evacBanner" class="evac-banner" style="display: none;">
+  <div class="evac-siren">🚨</div>
+  <div class="evac-content">
+    <div class="evac-title">CRITICAL EMERGENCY</div>
+    <div class="evac-message">IMMEDIATE EVACUATION REQUIRED</div>
+  </div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>⛏️ Mine Safety Monitor</h1>
+      <p class="subtitle">Real-time sensor monitoring & risk assessment</p>
+    </div>
+    <div class="header-right">
+      <div class="status-indicator">
+        <span class="dot connected" id="connectionDot"></span>
+        <span id="connectionStatus">Connecting...</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="summary-stats">
+    <div class="stat-card stat-normal">
+      <div class="stat-icon">📍</div>
+      <div class="stat-info">
+        <div class="stat-value" id="totalNodes">0</div>
+        <div class="stat-label">Total Nodes</div>
+      </div>
+    </div>
+    <div class="stat-card stat-normal">
+      <div class="stat-icon">✓</div>
+      <div class="stat-info">
+        <div class="stat-value" id="normalCount">0</div>
+        <div class="stat-label">Normal</div>
+      </div>
+    </div>
+    <div class="stat-card stat-warning">
+      <div class="stat-icon">⚠</div>
+      <div class="stat-info">
+        <div class="stat-value" id="warningCount">0</div>
+        <div class="stat-label">Warning</div>
+      </div>
+    </div>
+    <div class="stat-card stat-hazard">
+      <div class="stat-icon">⚠</div>
+      <div class="stat-info">
+        <div class="stat-value" id="hazardCount">0</div>
+        <div class="stat-label">Hazard</div>
+      </div>
+    </div>
+    <div class="stat-card stat-critical">
+      <div class="stat-icon">🔴</div>
+      <div class="stat-info">
+        <div class="stat-value" id="criticalCount">0</div>
+        <div class="stat-label">Critical</div>
+      </div>
+    </div>
+    <div class="stat-card stat-normal">
+      <div class="stat-icon">✖</div>
+      <div class="stat-info">
+        <div class="stat-value" id="offlineCount">0</div>
+        <div class="stat-label">Offline</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-grid">
+    
+    <!-- Left Panel: Node List & Route Planner -->
+    <div class="panel left-panel">
+      <h2 class="panel-title">Sensor Nodes</h2>
+      
+      <!-- Node List -->
+      <div class="node-list" id="nodeList">
+        <!-- Populated by JavaScript -->
+      </div>
+
+      <!-- Route Planner -->
+      <div class="route-planner">
+        <div class="route-field">
+          <label>Route To:</label>
+          <select id="route-to">
+            <option value="A1">Tunnel A - Post 1</option>
+            <option value="A2">Tunnel A - Post 2</option>
+            <option value="A3">Tunnel A - Post 3</option>
+            <option value="B1">Tunnel B - Post 1</option>
+            <option value="B2">Tunnel B - Post 2</option>
+            <option value="B3">Tunnel B - Post 3</option>
+            <option value="FACE" selected>Coal Face (Primary)</option>
+          </select>
+        </div>
+        <button class="route-btn" id="route-btn">Plan Route</button>
+        <div class="route-result" id="route-result"></div>
+      </div>
+    </div>
+
+    <!-- Center Panel: Mine Map -->
+    <div class="panel center-panel">
+      <h2 class="panel-title">Mine Network</h2>
+      <svg class="map-svg" id="mapSvg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
+        <!-- Tunnel edges (paths) -->
+        <g id="edges"></g>
+        <!-- Node circles -->
+        <g id="nodes"></g>
+        <!-- Node labels -->
+        <g id="labels"></g>
+      </svg>
+    </div>
+
+    <!-- Right Panel: Node Details & Gauge -->
+    <div class="panel right-panel">
+      <h2 class="panel-title">Node Details</h2>
+      <div id="nodeDetailsContainer">
+        <p style="color: var(--text-muted); text-align: center; margin-top: 40px;">
+          Select a node to view details
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Alerts Section -->
+  <div class="alerts-section" id="alertsSection" style="display: none;">
+    <h2 class="section-title">Active Alerts</h2>
+    <div class="alerts-list" id="alertsList"></div>
+  </div>
+
+  <!-- Event Log Section -->
+  <div class="log-section">
+    <h2 class="section-title">Event Log</h2>
+    <div class="log-list" id="logList"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-info">
+      <p>Last updated: <span id="lastUpdate">--</span></p>
+      <p>Backend API: <span id="apiStatus">Disconnected</span></p>
+    </div>
+    <div class="footer-controls">
+      <button id="refreshBtn" class="btn btn-primary">🔄 Refresh Now</button>
+      <button id="autoRefreshBtn" class="btn btn-secondary">⏱️ Auto-Refresh: ON</button>
+      <button id="audioToggle" class="btn btn-secondary">🔊 Sound: ON</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="script_enhanced.js"></script>
+</body>
+</html>
