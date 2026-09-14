@@ -96,12 +96,12 @@ def receive_hardware_data(payload: SensorInputSchema, db: Session = Depends(get_
 @app.get("/api/nodes/latest")
 def get_all_nodes_latest(db: Session = Depends(get_db)):
     """
-    Returns the latest sensor reading for each node in the mine network.
-    Used by the web dashboard for real-time visualization.
+    Returns the latest sensor reading for each node...
     """
-    node_ids = ["A1", "A2", "A3", "B1", "B2", "B3", "FACE"]
-    nodes_response = []
+    # CHANGE THIS LINE to match your original dashboard exactly:
+    node_ids = ["SEAM-A12", "SEAM-B04", "SEAM-C07", "VENT-D02"]
     
+    nodes_response = []
     for node_id in node_ids:
         # Try to fetch the latest record for this node
         latest_record = db.query(models.SensorData).filter(

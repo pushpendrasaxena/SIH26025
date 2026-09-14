@@ -1,213 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mine Safety Dashboard</title>
-  <link rel="stylesheet" href="style_redesigned.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mine Safety Dashboard</title>
+<link rel="stylesheet" href="style_redesigned.css">
+</head>
+<body>
 </head>
 <body>
 
 <!-- Evacuation Banner -->
-<div id="evacBanner" class="evac-banner" style="display: none;">
+<div id="evacBanner" class="evac-banner hidden">
   <div class="evac-siren">🚨</div>
   <div class="evac-content">
     <div class="evac-title">CRITICAL EMERGENCY</div>
-    <div class="evac-message">IMMEDIATE EVACUATION REQUIRED</div>
+    <div class="evac-msg" id="evacMsg">IMMEDIATE EVACUATION REQUIRED</div>
   </div>
+  <button class="evac-close" onclick="document.getElementById('evacBanner').classList.add('hidden')">Dismiss</button>
 </div>
 
-<!-- Main Container -->
+<!-- Toast notification container -->
+<div id="toastContainer"></div>
+
 <div class="container">
-  
+
   <!-- Header -->
   <div class="header">
-    <div class="header-left">
+    <div class="header-brand">
       <h1>⛏️ Mine Safety Monitor</h1>
-      <p class="subtitle">Real-time sensor monitoring & risk assessment</p>
+      <small>REAL-TIME SENSOR MONITORING &amp; RISK ASSESSMENT</small>
     </div>
     <div class="header-right">
-      <div class="status-indicator">
-        <span class="dot connected" id="connectionDot"></span>
-        <span id="connectionStatus">Connecting...</span>
-      </div>
-      <div class="clock" id="clock">--:--:--</div>
+      <span class="conn-dot" id="connDot"></span>
+      <span class="conn-badge" id="connBadge">Connecting…</span>
+      <span class="hdr-clock" id="clock">--:--:--</span>
+      <button class="btn-sm" id="testReadingBtn">⚡ Test reading</button>
+      <button class="btn-sm active-toggle" id="autoBtn">⏱ Auto: ON</button>
+      <button class="btn-sm" id="audioBtn">🔊 Sound: ON</button>
     </div>
   </div>
 
-  <!-- Summary Stats (1 Row) -->
-  <div class="summary-stats">
-    <div class="stat-card stat-normal">
-      <div class="stat-icon">📍</div>
-      <div class="stat-value" id="totalNodes">0</div>
-      <div class="stat-label">Total</div>
-    </div>
-    <div class="stat-card stat-normal">
-      <div class="stat-icon">✓</div>
-      <div class="stat-value" id="normalCount">0</div>
-      <div class="stat-label">Normal</div>
-    </div>
-    <div class="stat-card stat-warning">
-      <div class="stat-icon">⚠</div>
-      <div class="stat-value" id="warningCount">0</div>
-      <div class="stat-label">Warning</div>
-    </div>
-    <div class="stat-card stat-hazard">
-      <div class="stat-icon">⚠</div>
-      <div class="stat-value" id="hazardCount">0</div>
-      <div class="stat-label">Hazard</div>
-    </div>
-    <div class="stat-card stat-critical">
-      <div class="stat-icon">🔴</div>
-      <div class="stat-value" id="criticalCount">0</div>
-      <div class="stat-label">Critical</div>
-    </div>
-    <div class="stat-card stat-offline">
-      <div class="stat-icon">✖</div>
-      <div class="stat-value" id="offlineCount">0</div>
-      <div class="stat-label">Offline</div>
-    </div>
+  <!-- Stats row -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-tile"><div class="stat-icon">📍</div><div><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Total</div></div></div>
+    <div class="stat-tile"><div class="stat-icon">✓</div><div><div class="stat-num" id="s-normal" style="color:var(--safe)">0</div><div class="stat-lbl">Normal</div></div></div>
+    <div class="stat-tile"><div class="stat-icon">⚠</div><div><div class="stat-num" id="s-warn" style="color:var(--warn)">0</div><div class="stat-lbl">Warning</div></div></div>
+    <div class="stat-tile"><div class="stat-icon">⚠</div><div><div class="stat-num" id="s-hazard" style="color:var(--hazard)">0</div><div class="stat-lbl">Hazard</div></div></div>
+    <div class="stat-tile"><div class="stat-icon">🔴</div><div><div class="stat-num" id="s-crit" style="color:var(--crit)">0</div><div class="stat-lbl">Critical</div></div></div>
+    <div class="stat-tile"><div class="stat-icon">✖</div><div><div class="stat-num" id="s-offline" style="color:var(--offline)">0</div><div class="stat-lbl">Offline</div></div></div>
   </div>
 
-  <!-- Node Selector Tabs -->
+  <!-- Node selector tabs -->
   <div class="node-selector">
-    <div class="selector-title">Select Node:</div>
-    <div class="selector-tabs" id="nodeSelector">
-      <!-- Populated by JavaScript -->
-    </div>
+    <div class="sel-label">Select Node:</div>
+    <div class="sel-tabs" id="nodeTabs"></div>
   </div>
 
-  <!-- Main Content Grid (3 Columns) -->
+  <!-- Active alerts banner -->
+  <div class="active-alerts-bar" id="activeAlertsBar">
+    <h3>🚨 Active Alerts</h3>
+    <div class="active-alerts-list" id="activeAlertsList"></div>
+  </div>
+
+  <!-- Main 3-col grid -->
   <div class="main-grid">
-    
-    <!-- Left Column: Compact Map + Route Planner -->
-    <div class="panel left-column">
-      <h3 class="panel-title">Mine Map</h3>
-      <svg class="map-svg-compact" id="mapSvg" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid slice">
-        <g id="edges"></g>
-        <g id="nodes"></g>
-        <g id="labels"></g>
-      </svg>
-      
-      <div class="route-planner compact">
-        <label>Route To:</label>
-        <select id="route-to">
-          <option value="A1">Post A1</option>
-          <option value="A2">Post A2</option>
-          <option value="A3">Post A3</option>
-          <option value="B1">Post B1</option>
-          <option value="B2">Post B2</option>
-          <option value="B3">Post B3</option>
-          <option value="FACE" selected>Coal Face</option>
-        </select>
-        <button class="btn-small" id="route-btn">Plan</button>
-        <div class="route-result-compact" id="route-result"></div>
+
+    <!-- LEFT: Mine map + route planner -->
+    <div class="panel">
+      <div class="panel-title">Mine Map</div>
+
+      <div class="map-wrap">
+        <svg id="mapSvg" viewBox="0 0 340 260" preserveAspectRatio="xMidYMid meet">
+          <!-- tunnel lines -->
+          <line x1="50" y1="130" x2="290" y2="130" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line x1="130" y1="130" x2="130" y2="200" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line x1="210" y1="130" x2="210" y2="200" stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <line x1="270" y1="130" x2="270" y2="60"  stroke="#2d3748" stroke-width="4" stroke-linecap="round"/>
+          <!-- node A12 -->
+          <circle class="pulse-ring" id="pr-SEAM-A12" cx="60" cy="130" r="12" fill="#22c55e"/>
+          <circle id="md-SEAM-A12" cx="60" cy="130" r="11" fill="#22c55e" style="cursor:pointer"/>
+          <text class="map-node-lbl" x="60" y="152" text-anchor="middle" font-size="8">SHAFT A-12</text>
+          <!-- node B04 -->
+          <circle class="pulse-ring" id="pr-SEAM-B04" cx="130" cy="200" r="12" fill="#22c55e"/>
+          <circle id="md-SEAM-B04" cx="130" cy="200" r="11" fill="#22c55e" style="cursor:pointer"/>
+          <text class="map-node-lbl" x="130" y="220" text-anchor="middle" font-size="8">GALLERY B-04</text>
+          <!-- node C07 -->
+          <circle class="pulse-ring" id="pr-SEAM-C07" cx="210" cy="200" r="12" fill="#22c55e"/>
+          <circle id="md-SEAM-C07" cx="210" cy="200" r="11" fill="#22c55e" style="cursor:pointer"/>
+          <text class="map-node-lbl" x="210" y="220" text-anchor="middle" font-size="8">GALLERY C-07</text>
+          <!-- node D02 -->
+          <circle class="pulse-ring" id="pr-VENT-D02" cx="270" cy="60" r="12" fill="#22c55e"/>
+          <circle id="md-VENT-D02" cx="270" cy="60" r="11" fill="#22c55e" style="cursor:pointer"/>
+          <text class="map-node-lbl" x="270" y="44" text-anchor="middle" font-size="8">VENT D-02</text>
+        </svg>
+      </div>
+
+      <div class="map-legend" id="mapLegend"></div>
+
+      <div class="route-planner">
+        <div class="route-row">
+          <label>Route to:</label>
+          <select id="routeTo">
+            <option value="SEAM-A12">Shaft A-12</option>
+            <option value="SEAM-B04">Gallery B-04</option>
+            <option value="SEAM-C07">Gallery C-07</option>
+            <option value="VENT-D02">Vent D-02</option>
+          </select>
+          <button class="btn-sm" id="routeBtn">Plan</button>
+        </div>
+        <div class="route-result" id="routeResult"></div>
       </div>
     </div>
 
-    <!-- Center Column: Node Telemetry + Risk Predictions -->
-    <div class="panel center-column">
-      <h3 class="panel-title" id="selectedNodeTitle">Node Details</h3>
-      
-      <!-- Risk Score & Status Bar -->
+    <!-- CENTER: Node detail -->
+    <div class="panel" id="centerPanel">
+      <div class="panel-title" id="nodePanelTitle">Node Details</div>
+
+      <!-- Risk banner -->
       <div class="risk-banner" id="riskBanner">
-        <div class="risk-score-display">
-          <div class="risk-circle" id="riskCircle">
-            <span id="riskValue">--</span>%
-          </div>
-          <div class="risk-text">
-            <div class="risk-label" id="riskLabel">--</div>
-            <div class="risk-time" id="readingTime">--</div>
-          </div>
+        <div class="risk-circle" id="riskCircle">
+          <span id="riskVal">--</span>
+          <small>/ 100</small>
+        </div>
+        <div class="risk-info">
+          <div class="risk-flag" id="riskFlag">—</div>
+          <div class="risk-time" id="riskTime">—</div>
         </div>
       </div>
 
-      <!-- Risk Predictions/Warnings -->
-      <div class="predictions-section">
-        <h4>⚡ Risk Predictions</h4>
-        <div class="predictions-list" id="predictionsList">
-          <p style="color: var(--text-muted);">No warnings</p>
-        </div>
-      </div>
+      <!-- Risk predictions -->
+      <div class="section-h">⚡ Risk Predictions</div>
+      <div class="predictions-list" id="predsList"></div>
 
-      <!-- Sensor Telemetry Grid (11 Sensors) -->
-      <div class="telemetry-section">
-        <h4>📊 Sensor Telemetry</h4>
-        <div class="telemetry-grid" id="telemetryGrid">
-          <!-- Populated by JavaScript -->
-        </div>
-      </div>
+      <!-- Sensor telemetry -->
+      <div class="section-h">📊 Sensor Telemetry</div>
+      <div class="telemetry-grid" id="teleGrid"></div>
     </div>
 
-    <!-- Right Column: Vibration Graph + Alerts + Engineer Contacts -->
-    <div class="panel right-column">
-      
-      <!-- Vibration Graph -->
-      <div class="vibration-section">
-        <h4>📈 Vibration Analysis</h4>
-        <p class="vibration-help">Machine vs Structure</p>
-        <canvas id="vibrationChart" class="vibration-chart"></canvas>
-        <div class="vibration-legend">
-          <span class="legend-item">🔵 Machine Vibe</span>
-          <span class="legend-item">🔴 Structure Risk</span>
+    <!-- RIGHT: Vibration + alerts + contacts -->
+    <div class="panel">
+
+      <!-- Vibration chart -->
+      <div class="panel-title">Vibration Analysis</div>
+      <div class="vibe-header">
+        <div class="vibe-legend">
+          <span><span class="dot" style="background:#3b82f6;border-radius:50%;width:8px;height:8px;display:inline-block"></span> Machine</span>
+          <span><span class="dot" style="background:#ef4444;border-radius:50%;width:8px;height:8px;display:inline-block"></span> Structure Risk</span>
         </div>
+        <span style="font-size:10px;color:var(--text-faint)" id="vibePeakLabel">Peak: —</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="vibCanvas"></canvas>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:4px">
+        <span id="vibeTimeOld">—</span>
+        <span style="color:var(--text-muted)">← time →</span>
+        <span id="vibeTimeNew">now</span>
       </div>
 
-      <!-- Alert Engineers Section -->
-      <div class="alert-engineers">
-        <h4>🔔 Notify Engineers</h4>
-        <div class="engineer-contacts">
-          <div class="contact-item">
-            <span class="contact-role">Supervisor:</span>
-            <span class="contact-value" id="supervisorPhone">+91-9876543210</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-role">Chief Engr:</span>
-            <span class="contact-value" id="chiefPhone">+91-8765432109</span>
-          </div>
-        </div>
+      <!-- Alert engineers -->
+      <div class="engineers-block">
+        <div class="panel-title" style="margin-bottom:8px">🔔 Notify Engineers</div>
+        <div class="contact-list" id="contactList"></div>
         <button class="btn-alert" id="manualAlertBtn">🚨 Send Alert Now</button>
       </div>
 
-      <!-- Alert History -->
-      <div class="alert-history">
-        <h4>📋 Recent Alerts</h4>
-        <div class="alerts-list compact" id="alertsList">
-          <p style="color: var(--text-muted); font-size: 0.85rem;">No alerts</p>
+      <!-- Alert history -->
+      <div class="alerts-block">
+        <div class="panel-title" style="margin-bottom:8px">📋 Recent Alerts</div>
+        <div class="alerts-scroll" id="alertsScroll">
+          <p style="color:var(--text-faint);font-size:12px">No alerts yet.</p>
         </div>
       </div>
 
     </div>
-
-  </div>
-
-  <!-- Active Alerts Banner (if any) -->
-  <div class="active-alerts" id="activeAlerts" style="display: none;">
-    <h3>🚨 Active Alerts</h3>
-    <div class="alerts-banner-list" id="alertsBannerList"></div>
-  </div>
-
-  <!-- Event Log (Compact) -->
-  <div class="event-log-section">
-    <h3>📝 Event Log</h3>
-    <div class="log-list compact" id="logList"></div>
-  </div>
+  </div><!-- /main-grid -->
 
   <!-- Footer -->
   <div class="footer">
     <div class="footer-info">
-      <span>API: <span id="apiStatus">Disconnected</span></span>
-      <span>Updated: <span id="lastUpdate">--</span></span>
+      <span>API: <strong id="apiStatus" style="color:var(--crit)">Disconnected</strong></span>
+      <span>Updated: <span id="lastUpdate">—</span></span>
     </div>
-    <div class="footer-controls">
-      <button id="refreshBtn" class="btn-small">🔄 Refresh</button>
-      <button id="autoRefreshBtn" class="btn-small">⏱️ Auto: ON</button>
-      <button id="audioToggle" class="btn-small">🔊 Sound: ON</button>
+    <div class="footer-ctrls">
+      <button class="btn-sm" id="refreshBtn">🔄 Refresh</button>
     </div>
   </div>
 
-</div>
-
+</div><!-- /container -->
 <script src="script_redesigned.js"></script>
 </body>
 </html>
